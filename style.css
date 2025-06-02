@@ -1,0 +1,72 @@
+/* style.css */
+
+/* Main container */
+.block-container {
+  padding: 2rem 4rem;
+  font-family: "Segoe UI", sans-serif;
+  background-color: #3e4b58;
+}
+
+/* Chat bubbles */
+.chat-message {
+  border-radius: 16px;
+  padding: 12px 18px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  max-width: 80%;
+  line-height: 1.6;
+}
+
+.chat-user {
+  background-color: #3c3f3c;
+  text-align: right;
+  margin-left: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.chat-assistant {
+  background-color: #706d6d;
+  text-align: left;
+  margin-right: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Buttons */
+.stButton > button {
+  border-radius: 8px;
+  padding: 0.6em 1.8em;
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  font-size: 16px;
+  transition: background-color 0.3s;
+}
+
+.stButton > button:hover {
+  background-color: #005bb5;
+}
+
+/* Radio buttons (mode switch) */
+label[data-baseweb="radio"] {
+  background-color: #5a4747;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+t
+/* Uploaded image container */
+.uploaded-image {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  background: white;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+/* Caption and info text */
+.caption {
+  font-size: 18px;
+  font-weight: 500;
+  color: #333;
+}
