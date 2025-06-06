@@ -51,7 +51,7 @@ left_col, mid_col, right_col = st.columns([1, 5, 1])
 
 with left_col:
     if st.button("🔄 New Chat"):
-        keys_to_clear = ["uploaded_file", "base64_image", "chat", "chat_history", "caption_text", "caption_chat"]
+        keys_to_clear = ["uploaded_file", "base64_image", "chat", "chat_history", "caption_text", "caption_chat", "recipe_text", "recipe_chat"]
         for key in keys_to_clear:
             if key in st.session_state:
                 del st.session_state[key]
@@ -60,7 +60,7 @@ with left_col:
         st.rerun()
 
 with right_col:
-    available_modes = ["Analyze/Chat", "Get a caption"]
+    available_modes = ["Analyze/Chat", "Get a caption", "Recipe mode"]
     selected_mode = st.radio("Select Mode", options=available_modes, index=available_modes.index(st.session_state.get("mode", "Analyze/Chat")))
     
     if selected_mode != st.session_state.get("mode"):
@@ -87,6 +87,8 @@ if uploaded_file:
             st.session_state["caption_text"] = None
             st.session_state["caption_chat"] = None
             st.session_state["chat"] = None
+            st.session_state["recipe_text"] = None
+            st.session_state["recipe_chat"] = None
             st.session_state["chat_history"] = []
             st.session_state["prev_file_name"] = uploaded_file.name
 
@@ -154,13 +156,37 @@ def render_chat_ui():
             reply = ask_gemini_chat(st.session_state.chat, user_prompt)
         st.session_state.chat_history.append(("assistant", reply))
         st.rerun()
+        
+def render_recipe_ui():
+    st.subheader("🍽️ Suggested Dish & Recipe:")
+    if st.session_state.get("recipe_text") is None:
+        with st.spinner("Analyzing food image and generating recipe..."):
+            if st.session_state.get("recipe_chat") is None:
+                st.session_state.recipe_chat = create_gemini_chat(st.session_state.base64_image)
+            st.session_state.recipe_text = ask_gemini_chat(
+                st.session_state.recipe_chat,
+                "You are a culinary expert. Based on the uploaded food image, suggest a dish that could be made and provide a detailed recipe including ingredients and steps."
+            )
+    st.markdown(st.session_state.recipe_text)
+
+    if st.button("🔁 Suggest a different dish"):
+        with st.spinner("Generating another dish idea..."):
+            st.session_state.recipe_text = ask_gemini_chat(
+                st.session_state.recipe_chat,
+                "Suggest another different dish from the uploaded food image and provide its full recipe."
+            )
+        st.rerun()
 
 
 # --- Mode Handler ---
 if st.session_state.get("image_bytes"):
-    if st.session_state.uploaded_file and mode == "Get a caption":
-        render_caption_ui()
-    elif st.session_state.uploaded_file and mode == "Analyze/Chat":
-        render_chat_ui()
+    if st.session_state.uploaded_file:
+        if mode == "Get a caption":
+            render_caption_ui()
+        elif mode == "Analyze/Chat":
+            render_chat_ui()
+        elif mode == "Recipe mode":
+            render_recipe_ui()
 else:
     st.info("👆 Please upload an image to get started.")
+
