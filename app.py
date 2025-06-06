@@ -159,23 +159,34 @@ def render_chat_ui():
         
 def render_recipe_ui():
     st.subheader("🍽️ Suggested Dish & Recipe:")
+
     if st.session_state.get("recipe_text") is None:
         with st.spinner("Analyzing food image and generating recipe..."):
             if st.session_state.get("recipe_chat") is None:
                 st.session_state.recipe_chat = create_gemini_chat(st.session_state.base64_image)
-            st.session_state.recipe_text = ask_gemini_chat(
+
+            response = ask_gemini_chat(
                 st.session_state.recipe_chat,
-                "You are a culinary expert. Based on the uploaded food image, suggest a dish that could be made and provide a detailed recipe including ingredients and steps."
+                "You are a culinary expert. Based on the uploaded food image, suggest a dish that could be made and provide a detailed recipe including ingredients and steps. If the uploaded image does not contain any recognizable food items, respond with 'No food found to generate a recipe.'"
             )
+
+            # Check for "no food found" response
+            if "no food found" in response.lower():
+                st.session_state.recipe_text = "❌ **No food items found to generate a recipe. Please upload different image.**"
+            else:
+                st.session_state.recipe_text = response
+
     st.markdown(st.session_state.recipe_text)
 
-    if st.button("🔁 Suggest a different dish"):
-        with st.spinner("Generating another dish idea..."):
-            st.session_state.recipe_text = ask_gemini_chat(
-                st.session_state.recipe_chat,
-                "Suggest another different dish from the uploaded food image and provide its full recipe."
-            )
-        st.rerun()
+    if "no food items found" not in st.session_state.recipe_text.lower():
+        if st.button("🔁 Suggest a different dish"):
+            with st.spinner("Generating another dish idea..."):
+                st.session_state.recipe_text = ask_gemini_chat(
+                    st.session_state.recipe_chat,
+                    "Suggest another different dish from the uploaded food image and provide its full recipe."
+                )
+            st.rerun()
+
 
 
 # --- Mode Handler ---
