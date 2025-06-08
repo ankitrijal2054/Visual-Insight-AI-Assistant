@@ -74,8 +74,8 @@ with right_col:
     "Document mode"
 ]
 
-    selected_mode = st.radio("Select Mode", options=available_modes, index=available_modes.index(st.session_state.get("mode", "Analyze/Chat")))
-    
+    selected_mode = st.selectbox("🎛️ Select Mode", options=available_modes, index=available_modes.index(st.session_state.get("mode", "Analyze/Chat")))
+
     if selected_mode != st.session_state.get("mode"):
         st.session_state.mode = selected_mode
         st.rerun()
