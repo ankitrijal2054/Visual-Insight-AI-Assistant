@@ -36,7 +36,9 @@ with col2:
 
 
 # --- Session State Init ---
-for key in ["uploaded_file", "base64_image", "chat", "chat_history", "caption_text", "caption_chat"]:
+for key in ["uploaded_file", "base64_image", "chat", "chat_history", "caption_text", "caption_chat", 
+            "recipe_text", "recipe_chat","fashion_text", "fashion_chat", "travel_text", "travel_chat",
+            "document_text", "document_chat", "funfact_text", "funfact_chat"]:
     if key not in st.session_state:
         st.session_state[key] = None
 if "uploader_key" not in st.session_state:
@@ -55,7 +57,7 @@ with left_col:
                 "uploaded_file", "base64_image", "chat", "chat_history", 
                 "caption_text", "caption_chat", "recipe_text", "recipe_chat",
                 "fashion_text", "fashion_chat", "travel_text", "travel_chat",
-                "document_text", "document_chat"
+                "document_text", "document_chat", "funfact_text", "funfact_chat"
                 ]
         for key in keys_to_clear:
             if key in st.session_state:
@@ -71,7 +73,8 @@ with right_col:
     "Recipe mode",
     "Fashion mode",
     "Travel mode",
-    "Document mode"
+    "Document mode",
+    "Fun fact mode"
 ]
 
     selected_mode = st.selectbox("🎛️ Select Mode", options=available_modes, index=available_modes.index(st.session_state.get("mode", "Analyze/Chat")))
@@ -108,6 +111,8 @@ if uploaded_file:
             st.session_state["travel_chat"] = None
             st.session_state["document_text"] = None
             st.session_state["document_chat"] = None
+            st.session_state["funfact_text"] = None
+            st.session_state["funfact_chat"] = None
             st.session_state["chat_history"] = []
             st.session_state["prev_file_name"] = uploaded_file.name
 
@@ -254,6 +259,32 @@ def render_document_ui():
                 st.session_state.document_text = response
     st.markdown(st.session_state.document_text)
 
+def render_funfact_ui():
+    st.subheader("🎉 Fun Fact:")
+    if st.session_state.get("funfact_text") is None:
+        with st.spinner("Generating fun fact..."):
+            if st.session_state.get("funfact_chat") is None:
+                st.session_state.funfact_chat = create_gemini_chat(st.session_state.base64_image)
+            response = ask_gemini_chat(
+                st.session_state.funfact_chat,
+                "You're a trivia expert. Based on the uploaded image, generate a surprising or educational fun fact related to what is shown in the picture. If you can't detect anything, respond with 'No fun fact could be generated.'"
+            )
+            if "no fun fact" in response.lower():
+                st.session_state.funfact_text = "❌ **No fun fact could be generated. Try uploading a different image.**"
+            else:
+                st.session_state.funfact_text = response
+    st.markdown(st.session_state.funfact_text)
+
+    if "no fun fact" not in st.session_state.funfact_text.lower():
+        if st.button("🎲 Generate another fun fact"):
+            with st.spinner("Thinking..."):
+                st.session_state.funfact_text = ask_gemini_chat(
+                    st.session_state.funfact_chat,
+                    "Generate another fun fact based on the uploaded image."
+                )
+            st.rerun()
+
+
 
 # --- Mode Handler ---
 if st.session_state.get("image_bytes"):
@@ -270,6 +301,9 @@ if st.session_state.get("image_bytes"):
             render_travel_ui()
         elif mode == "Document mode":
             render_document_ui()
+        elif mode == "Fun fact mode":
+            render_funfact_ui()
+
 else:
     st.info("👆 Please upload an image to get started.")
 
