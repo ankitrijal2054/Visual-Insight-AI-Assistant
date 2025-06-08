@@ -51,7 +51,12 @@ left_col, mid_col, right_col = st.columns([1, 5, 1])
 
 with left_col:
     if st.button("🔄 New Chat"):
-        keys_to_clear = ["uploaded_file", "base64_image", "chat", "chat_history", "caption_text", "caption_chat", "recipe_text", "recipe_chat"]
+        keys_to_clear = [
+                "uploaded_file", "base64_image", "chat", "chat_history", 
+                "caption_text", "caption_chat", "recipe_text", "recipe_chat",
+                "fashion_text", "fashion_chat", "travel_text", "travel_chat",
+                "document_text", "document_chat"
+                ]
         for key in keys_to_clear:
             if key in st.session_state:
                 del st.session_state[key]
@@ -60,7 +65,15 @@ with left_col:
         st.rerun()
 
 with right_col:
-    available_modes = ["Analyze/Chat", "Get a caption", "Recipe mode"]
+    available_modes = [
+    "Analyze/Chat",
+    "Get a caption",
+    "Recipe mode",
+    "Fashion mode",
+    "Travel mode",
+    "Document mode"
+]
+
     selected_mode = st.radio("Select Mode", options=available_modes, index=available_modes.index(st.session_state.get("mode", "Analyze/Chat")))
     
     if selected_mode != st.session_state.get("mode"):
@@ -89,6 +102,12 @@ if uploaded_file:
             st.session_state["chat"] = None
             st.session_state["recipe_text"] = None
             st.session_state["recipe_chat"] = None
+            st.session_state["fashion_text"] = None
+            st.session_state["fashion_chat"] = None
+            st.session_state["travel_text"] = None
+            st.session_state["travel_chat"] = None
+            st.session_state["document_text"] = None
+            st.session_state["document_chat"] = None
             st.session_state["chat_history"] = []
             st.session_state["prev_file_name"] = uploaded_file.name
 
@@ -187,6 +206,53 @@ def render_recipe_ui():
                 )
             st.rerun()
 
+def render_fashion_ui():
+    st.subheader("👗 Outfit Insight:")
+    if st.session_state.get("fashion_text") is None:
+        with st.spinner("Analyzing fashion image..."):
+            if st.session_state.get("fashion_chat") is None:
+                st.session_state.fashion_chat = create_gemini_chat(st.session_state.base64_image)
+            response = ask_gemini_chat(
+                st.session_state.fashion_chat,
+                "You are a fashion expert. Based on the uploaded image, describe the outfit and suggest a potential brand, style category, or how it could be styled. If this is not a fashion image, respond with 'No fashion-related items found.'"
+            )
+            if "no fashion" in response.lower():
+                st.session_state.fashion_text = "❌ **No fashion-related items found. Please upload a different image.**"
+            else:
+                st.session_state.fashion_text = response
+    st.markdown(st.session_state.fashion_text)
+
+def render_travel_ui():
+    st.subheader("🌍 Travel Suggestion:")
+    if st.session_state.get("travel_text") is None:
+        with st.spinner("Analyzing scenery image..."):
+            if st.session_state.get("travel_chat") is None:
+                st.session_state.travel_chat = create_gemini_chat(st.session_state.base64_image)
+            response = ask_gemini_chat(
+                st.session_state.travel_chat,
+                "You are a travel expert. Based on the uploaded image, identify the possible location or region, and suggest travel tips or nearby tourist destinations. If it's not a travel-related scene, say 'Unable to identify a travel location.'"
+            )
+            if "unable to identify" in response.lower():
+                st.session_state.travel_text = "❌ **Unable to identify a travel location. Please upload a scenic or landmark image.**"
+            else:
+                st.session_state.travel_text = response
+    st.markdown(st.session_state.travel_text)
+
+def render_document_ui():
+    st.subheader("📄 Document Summary:")
+    if st.session_state.get("document_text") is None:
+        with st.spinner("Extracting and summarizing text..."):
+            if st.session_state.get("document_chat") is None:
+                st.session_state.document_chat = create_gemini_chat(st.session_state.base64_image)
+            response = ask_gemini_chat(
+                st.session_state.document_chat,
+                "You are a document analysis assistant. Extract any visible text from the uploaded image and provide a concise summary. If the document has no readable text, reply 'No readable text found.'"
+            )
+            if "no readable text" in response.lower():
+                st.session_state.document_text = "❌ **No readable text found. Please upload a clear document or form image.**"
+            else:
+                st.session_state.document_text = response
+    st.markdown(st.session_state.document_text)
 
 
 # --- Mode Handler ---
@@ -198,6 +264,13 @@ if st.session_state.get("image_bytes"):
             render_chat_ui()
         elif mode == "Recipe mode":
             render_recipe_ui()
+        elif mode == "Fashion mode":
+            render_fashion_ui()
+        elif mode == "Travel mode":
+            render_travel_ui()
+        elif mode == "Document mode":
+            render_document_ui()
 else:
     st.info("👆 Please upload an image to get started.")
+
 
