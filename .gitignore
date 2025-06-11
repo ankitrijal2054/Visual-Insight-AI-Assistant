@@ -1,3 +1,10 @@
 __pycache__
 .env
 .DS_Store
+
+/.idea
+/Scripts
+pyvenv.cfg
+/etc
+/Lib
+/share
