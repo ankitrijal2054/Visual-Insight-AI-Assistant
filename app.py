@@ -125,8 +125,9 @@ def render_chat_mode_ui(mode_name, subheader, initial_prompt, chat_input_placeho
     history_key = f"{mode_name}_history"
     chat_session_key = f"{mode_name}_chat"
     guardrail_prompt = (
-        "For any follow-up chat message, respond only if it is clearly and directly related to the uploaded image content. "
+        "For any follow-up chat message, respond only if it is related to the uploaded image content. "
         "If the question is off-topic or cannot be answered using the image, say: 'This question is not related to the image content.' Do not guess."
+        "But do answer questions related to the image content, even if it is not directly visible in the image or user ask question like 'What is this?' since they are asking about the image."
     )
     final_initial_prompt = f"{initial_prompt} {guardrail_prompt}"
 
@@ -162,7 +163,6 @@ def render_chat_mode_ui(mode_name, subheader, initial_prompt, chat_input_placeho
             response = ask_gemini_chat(st.session_state[chat_session_key], prompt)
             st.session_state[history_key].append(("assistant", response))
             st.rerun()
-
 
 
 # --- Mode Handler ---
