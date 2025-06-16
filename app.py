@@ -46,6 +46,8 @@ keys_to_init = [
 for key in keys_to_init:
     if key not in st.session_state:
         st.session_state[key] = None
+if "uploader_key" not in st.session_state:
+    st.session_state["uploader_key"] = 0
 
 # --- Sidebar Navigation ---
 with st.sidebar:
@@ -70,8 +72,9 @@ with st.sidebar:
     if st.button("🔄 New Analysis", use_container_width=True, type="secondary"):
         keys_to_clear = list(st.session_state.keys())
         for key in keys_to_clear:
-            if key != 'view':
+            if key != "uploader_key":
                 del st.session_state[key]
+        st.session_state["uploader_key"] += 1
         st.rerun()
 
 # --- Main Content Area ---
@@ -83,7 +86,8 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 st.markdown(f"<div class='hero'><h1>{st.session_state.view}</h1></div>", unsafe_allow_html=True)
 
-uploaded_file = st.file_uploader("Upload an image to begin", type=["jpeg"], label_visibility="collapsed")
+uploader_key = st.session_state.get("uploader_key", 0)
+uploaded_file = st.file_uploader("📤 Upload an image to begin", type=["jpg", "jpeg", "png"], label_visibility="collapsed", key=uploader_key)
 
 if uploaded_file and uploaded_file.name != st.session_state.get("prev_file_name"):
     # Clear all session state except the view when a new image is uploaded
