@@ -10,6 +10,14 @@ import io
 from ai_api import ask_gemini_chat, create_gemini_chat
 from utils.image_utils import image_to_base64
 
+import base64
+
+def get_image_base64(image_path):
+    with open(image_path, "rb") as f:
+        return base64.b64encode(f.read()).decode()
+
+logo_base64 = get_image_base64("logo.png")
+
 # --- Page Config & CSS Injection ---
 st.set_page_config(
     page_title="Visual Insights Assistant",
@@ -67,6 +75,12 @@ with st.sidebar:
         st.rerun()
 
 # --- Main Content Area ---
+
+st.markdown(f"""
+    <div style="text-align: center; padding-top: 10px;">
+        <img src="data:image/png;base64,{logo_base64}" style="height: 200px;">
+    </div>
+""", unsafe_allow_html=True)
 st.markdown(f"<div class='hero'><h1>{st.session_state.view}</h1></div>", unsafe_allow_html=True)
 
 uploaded_file = st.file_uploader("Upload an image to begin", type=["jpeg"], label_visibility="collapsed")
