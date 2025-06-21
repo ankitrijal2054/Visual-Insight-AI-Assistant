@@ -81,7 +81,7 @@ with st.sidebar:
 
 st.markdown(f"""
     <div style="text-align: center; padding-top: 10px;">
-        <img src="data:image/png;base64,{logo_base64}" style="height: 200px;">
+        <img src="data:image/png;base64,{logo_base64}" style="height: 150px;">
     </div>
 """, unsafe_allow_html=True)
 st.markdown(f"<div class='hero'><h1>{st.session_state.view}</h1></div>", unsafe_allow_html=True)
@@ -105,7 +105,12 @@ if uploaded_file and uploaded_file.name != st.session_state.get("prev_file_name"
 
 if st.session_state.get("base64_image"):
     st.markdown(
-        f"<div class='uploaded-image-container'><img src='data:image/jpeg;base64,{st.session_state.base64_image}' class='uploaded-image'></div>",
+        f"""
+            <div style='text-align: center;'>
+                <img src='data:image/jpeg;base64,{st.session_state.base64_image}'
+                     style='width: 400px; height: auto; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.2);' />
+            </div>
+            """,
         unsafe_allow_html=True)
 
 
@@ -201,4 +206,8 @@ if st.session_state.get("base64_image"):
                             "Ask for another fact, or more details...")
 else:
     if not uploaded_file:
-        st.info("👆 Please upload an image to get started.")
+        st.markdown("""
+            <div style='text-align: center; margin-top: 20px; color: #ccc; font-size: 18px;'>
+                👆 <span style="color: #FFD591;">Please upload an image to get started.</span>
+            </div>
+        """, unsafe_allow_html=True)
